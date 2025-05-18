@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import Navbar from '@/components/layouts/Navbar';
+import Navbar from '@/components/layout/Navbar';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 export default function DashboardLayout({

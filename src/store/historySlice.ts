@@ -33,7 +33,8 @@ export const historySlice = createSlice({
         id: Date.now().toString(),
         city,
         country,
-        timestamp: Date.now(),
+        createdAt: Date.now(),
+        result: {} // Empty result as it will be filled by the API response
       });
       
       // Limit the history to maxItems
