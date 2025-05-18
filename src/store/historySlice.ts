@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { SearchHistoryItem } from '@/types/weather';
+import { SearchHistoryItem } from '@/types';
 
 interface HistoryState {
   items: SearchHistoryItem[];

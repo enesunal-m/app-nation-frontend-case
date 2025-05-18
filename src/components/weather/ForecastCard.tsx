@@ -1,6 +1,7 @@
-import { useAppSelector } from '@/store';
-import { formatDate, getWeatherIconUrl } from '@/lib/api';
-import { DayForecast } from '@/types/weather';
+'use client';
+
+import { formatDate, getWeatherIconUrl } from '@/lib/formatters';
+import { DayForecast } from '@/types';
 
 interface ForecastCardProps {
   forecast: DayForecast;
@@ -8,9 +9,9 @@ interface ForecastCardProps {
 }
 
 const ForecastCard = ({ forecast, isToday = false }: ForecastCardProps) => {
-  const { units } = useAppSelector((state) => state.weather);
-  const isMetric = units === 'metric';
-  const tempUnit = isMetric ? '°C' : '°F';
+  // Use metric units as backend provides data in metric
+  const tempUnit = '°C';
+  const speedUnit = 'm/s';
   
   const iconUrl = getWeatherIconUrl(forecast.weather.icon);
   const formattedDate = formatDate(forecast.dateTimestamp);
@@ -44,7 +45,7 @@ const ForecastCard = ({ forecast, isToday = false }: ForecastCardProps) => {
         <div>
           <span className="block">Wind</span>
           <span className="font-medium text-gray-700">
-            {Math.round(forecast.windSpeed)} {isMetric ? 'm/s' : 'mph'}
+            {Math.round(forecast.windSpeed)} {speedUnit}
           </span>
         </div>
       </div>

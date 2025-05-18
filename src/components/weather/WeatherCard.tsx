@@ -1,9 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useAppSelector } from '@/store';
-import { formatDate, formatTime, getWeatherIconUrl } from '@/lib/api';
-import { WeatherResponse } from '@/types/weather';
+import { formatDate, formatTime, getWeatherIconUrl } from '@/lib/formatters';
+import { WeatherResponse } from '@/types';
 
 interface WeatherCardProps {
   data: WeatherResponse;
@@ -11,14 +10,16 @@ interface WeatherCardProps {
 
 const WeatherCard = ({ data }: WeatherCardProps) => {
   const [expandDetails, setExpandDetails] = useState(false);
-  const { units } = useAppSelector((state) => state.weather);
   
-  const isMetric = units === 'metric';
-  const tempUnit = isMetric ? '°C' : '°F';
-  const speedUnit = isMetric ? 'm/s' : 'mph';
+  // Weather data might be already parsed or might need parsing
+  const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
+
+  // Use metric units as backend provides data in metric
+  const tempUnit = '°C';
+  const speedUnit = 'm/s';
   
   // Get the first weather condition (primary)
-  const weather = data.weather[0];
+  const weather = parsedData.weather[0];
   const iconUrl = getWeatherIconUrl(weather.icon);
   
   return (
@@ -27,17 +28,17 @@ const WeatherCard = ({ data }: WeatherCardProps) => {
       <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-4 sm:p-6 text-white">
         <div className="flex flex-col sm:flex-row justify-between items-center">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-bold">{data.name}, {data.sys.country}</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold">{parsedData.name}, {parsedData.sys.country}</h2>
             <p className="text-blue-100 mt-1">
-              {formatDate(data.dt, data.timezone)} | {formatTime(data.dt, data.timezone)}
+              {formatDate(parsedData.dt, parsedData.timezone)} | {formatTime(parsedData.dt, parsedData.timezone)}
             </p>
           </div>
           <div className="mt-4 sm:mt-0 flex flex-col items-center">
             <span className="text-4xl sm:text-5xl font-bold">
-              {Math.round(data.main.temp)}{tempUnit}
+              {Math.round(parsedData.main.temp)}{tempUnit}
             </span>
             <span className="text-blue-100">
-              Feels like {Math.round(data.main.feels_like)}{tempUnit}
+              Feels like {Math.round(parsedData.main.feels_like)}{tempUnit}
             </span>
           </div>
         </div>
@@ -75,7 +76,7 @@ const WeatherCard = ({ data }: WeatherCardProps) => {
             <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
           </svg>
           <span className="text-sm text-gray-500">Humidity</span>
-          <span className="font-semibold text-lg">{data.main.humidity}%</span>
+          <span className="font-semibold text-lg">{parsedData.main.humidity}%</span>
         </div>
         
         <div className="flex flex-col items-center p-2">
@@ -94,7 +95,7 @@ const WeatherCard = ({ data }: WeatherCardProps) => {
             <path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"></path>
           </svg>
           <span className="text-sm text-gray-500">Wind</span>
-          <span className="font-semibold text-lg">{Math.round(data.wind.speed)} {speedUnit}</span>
+          <span className="font-semibold text-lg">{Math.round(parsedData.wind.speed)} {speedUnit}</span>
         </div>
         
         <div className="flex flex-col items-center p-2">
@@ -115,7 +116,7 @@ const WeatherCard = ({ data }: WeatherCardProps) => {
             <line x1="12" y1="16" x2="12.01" y2="16"></line>
           </svg>
           <span className="text-sm text-gray-500">Pressure</span>
-          <span className="font-semibold text-lg">{data.main.pressure} hPa</span>
+          <span className="font-semibold text-lg">{parsedData.main.pressure} hPa</span>
         </div>
         
         <div className="flex flex-col items-center p-2">
@@ -137,7 +138,7 @@ const WeatherCard = ({ data }: WeatherCardProps) => {
             <path d="M12 22v-6"></path>
           </svg>
           <span className="text-sm text-gray-500">Visibility</span>
-          <span className="font-semibold text-lg">{(data.visibility / 1000).toFixed(1)} km</span>
+          <span className="font-semibold text-lg">{(parsedData.visibility / 1000).toFixed(1)} km</span>
         </div>
       </div>
       
@@ -190,7 +191,7 @@ const WeatherCard = ({ data }: WeatherCardProps) => {
                 <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
               </svg>
               <span className="text-sm text-gray-500">Sunrise</span>
-              <span className="font-semibold">{formatTime(data.sys.sunrise, data.timezone)}</span>
+              <span className="font-semibold">{formatTime(parsedData.sys.sunrise, parsedData.timezone)}</span>
             </div>
             
             <div className="flex flex-col items-center p-2">
@@ -216,7 +217,7 @@ const WeatherCard = ({ data }: WeatherCardProps) => {
                 <polyline points="8 6 12 2 16 6"></polyline>
               </svg>
               <span className="text-sm text-gray-500">Sunset</span>
-              <span className="font-semibold">{formatTime(data.sys.sunset, data.timezone)}</span>
+              <span className="font-semibold">{formatTime(parsedData.sys.sunset, parsedData.timezone)}</span>
             </div>
             
             <div className="flex flex-col items-center p-2">
@@ -235,7 +236,7 @@ const WeatherCard = ({ data }: WeatherCardProps) => {
                 <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"></path>
               </svg>
               <span className="text-sm text-gray-500">Min Temp</span>
-              <span className="font-semibold">{Math.round(data.main.temp_min)}{tempUnit}</span>
+              <span className="font-semibold">{Math.round(parsedData.main.temp_min)}{tempUnit}</span>
             </div>
             
             <div className="flex flex-col items-center p-2">
@@ -254,7 +255,7 @@ const WeatherCard = ({ data }: WeatherCardProps) => {
                 <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"></path>
               </svg>
               <span className="text-sm text-gray-500">Max Temp</span>
-              <span className="font-semibold">{Math.round(data.main.temp_max)}{tempUnit}</span>
+              <span className="font-semibold">{Math.round(parsedData.main.temp_max)}{tempUnit}</span>
             </div>
           </div>
         )}

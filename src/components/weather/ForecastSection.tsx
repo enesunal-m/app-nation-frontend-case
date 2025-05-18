@@ -1,4 +1,4 @@
-import { DayForecast } from '@/types/weather';
+import { DayForecast } from '@/types';
 import ForecastCard from './ForecastCard';
 
 interface ForecastSectionProps {

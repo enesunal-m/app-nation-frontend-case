@@ -3,9 +3,14 @@ import React from 'react';
 interface LoadingSpinnerProps {
   size?: 'sm' | 'md' | 'lg';
   color?: string;
+  message?: string;
 }
 
-const LoadingSpinner = ({ size = 'md', color = 'blue-600' }: LoadingSpinnerProps) => {
+const LoadingSpinner = ({ 
+  size = 'md', 
+  color = 'blue-600',
+  message = 'Loading weather data...'
+}: LoadingSpinnerProps) => {
   const sizeClasses = {
     sm: 'h-5 w-5 border-2',
     md: 'h-8 w-8 border-3',
@@ -17,7 +22,7 @@ const LoadingSpinner = ({ size = 'md', color = 'blue-600' }: LoadingSpinnerProps
       <div
         className={`${sizeClasses[size]} border-t-transparent border-${color} rounded-full animate-spin`}
       ></div>
-      <p className="mt-4 text-gray-600">Loading weather data...</p>
+      {message && <p className="mt-4 text-gray-600">{message}</p>}
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { TemperatureUnit, WeatherError } from '@/types/weather';
+import { TemperatureUnit, WeatherError } from '@/types';
 
 interface WeatherState {
   currentCity: string;
