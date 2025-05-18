@@ -20,9 +20,9 @@ const LoadingSpinner = ({
   return (
     <div className="flex flex-col items-center justify-center py-6">
       <div
-        className={`${sizeClasses[size]} border-t-transparent border-${color} rounded-full animate-spin`}
+        className={`${sizeClasses[size]} border-t-transparent border-${color} dark:border-blue-400 rounded-full animate-spin`}
       ></div>
-      {message && <p className="mt-4 text-gray-600">{message}</p>}
+      {message && <p className="mt-4 text-gray-600 dark:text-gray-300">{message}</p>}
     </div>
   );
 };

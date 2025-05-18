@@ -3,13 +3,10 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { authAPI } from '@/services/api';
-
-interface User {
-  id: number;
-  email: string;
-  name: string | null;
-  role: string;
-}
+import { User } from '@/types';
+import Cookies from 'js-cookie';
+import { useAppDispatch } from '@/store';
+import { clearHistory } from '@/store/historySlice';
 
 interface AuthContextType {
   user: User | null;
@@ -28,11 +25,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const dispatch = useAppDispatch();
 
   // Check if user is already logged in
   useEffect(() => {
     const checkAuth = async () => {
-      const token = localStorage.getItem('accessToken');
+      const token = Cookies.get('accessToken');
       if (!token) {
         setIsLoading(false);
         return;
@@ -42,9 +40,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const userData = await authAPI.getProfile();
         setUser(userData);
       } catch (err) {
-        // If token is invalid, clear storage
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
+        // If token is invalid, clear cookies
+        Cookies.remove('accessToken');
+        Cookies.remove('refreshToken');
       } finally {
         setIsLoading(false);
       }
@@ -61,14 +59,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const response = await authAPI.login(email, password);
       const { access_token, refresh_token, user } = response;
       
-      localStorage.setItem('accessToken', access_token);
-      localStorage.setItem('refreshToken', refresh_token);
-      setUser(user);
+      // Set cookies with appropriate options
+      Cookies.set('accessToken', access_token, { 
+        secure: true, 
+        sameSite: 'strict',
+        path: '/'
+      });
+      Cookies.set('refreshToken', refresh_token, { 
+        secure: true, 
+        sameSite: 'strict',
+        path: '/'
+      });
       
+      setUser(user);
       router.push('/dashboard');
     } catch (err: any) {
-      const message = err.response?.data?.message || 'Login failed. Please try again.';
-      setError(message);
+      setError(err.message || 'Login failed. Please check your credentials.');
     } finally {
       setIsLoading(false);
     }
@@ -82,8 +88,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const response = await authAPI.register(name, email, password);
       const { access_token, refresh_token, user } = response;
       
-      localStorage.setItem('accessToken', access_token);
-      localStorage.setItem('refreshToken', refresh_token);
+      Cookies.set('accessToken', access_token, { secure: true, sameSite: 'strict' });
+      Cookies.set('refreshToken', refresh_token, { secure: true, sameSite: 'strict' });
       setUser(user);
       
       router.push('/dashboard');
@@ -99,16 +105,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     
     try {
-      const refreshToken = localStorage.getItem('refreshToken');
+      const refreshToken = Cookies.get('refreshToken');
       if (refreshToken) {
         await authAPI.logout(refreshToken);
       }
     } catch (err) {
       console.error('Logout error:', err);
     } finally {
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
+      // Clear auth data
+      Cookies.remove('accessToken');
+      Cookies.remove('refreshToken');
       setUser(null);
+      
+      // Clear history data
+      dispatch(clearHistory());
+      
       setIsLoading(false);
       router.push('/login');
     }

@@ -1,19 +1,27 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useWeatherHistory } from '@/hooks/useWeather';
 import { useAppDispatch } from '@/store';
 import { setCurrentCity } from '@/store/weatherSlice';
-import { formatDate, formatTime } from '@/lib/formatters';
+import { formatDate, formatTime, getWeatherIconUrl } from '@/lib/formatters';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { SearchHistoryItem } from '@/types';
+import { useTemperature } from '@/contexts/TemperatureContext';
+import TemperatureToggle from '@/components/TemperatureToggle';
 
 export default function HistoryPage() {
   const { historyData, isLoading, error, refreshHistory } = useWeatherHistory();
   const router = useRouter();
   const dispatch = useAppDispatch();
   const [searchTerm, setSearchTerm] = useState('');
+  const { unit, convertTemp } = useTemperature();
+
+  // Refresh history data when the page is mounted
+  useEffect(() => {
+    refreshHistory();
+  }, [refreshHistory]);
 
   const handleViewWeather = (city: string) => {
     dispatch(setCurrentCity(city));
@@ -28,12 +36,12 @@ export default function HistoryPage() {
   return (
     <div>
       <header className="text-center mb-8">
-        <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
-          Weather Search History
-        </h1>
-        <p className="text-gray-600">
+        <p className="text-gray-600 dark:text-gray-400 mb-4">
           View your recent weather searches and click on a city to see the current weather.
         </p>
+        <div className="flex justify-center">
+          <TemperatureToggle />
+        </div>
       </header>
 
       <div className="mb-6">
@@ -41,7 +49,7 @@ export default function HistoryPage() {
           <div className="relative flex-grow max-w-md">
             <input
               type="text"
-              className="w-full py-2 px-4 pr-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full py-2 px-4 pr-10 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Search in history..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -128,39 +136,39 @@ export default function HistoryPage() {
               d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
             />
           </svg>
-          <h3 className="mt-2 text-sm font-medium text-gray-900">No search history found</h3>
-          <p className="mt-1 text-sm text-gray-500">
+          <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">No search history found</h3>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             {searchTerm ? 'No results match your search.' : 'Start searching for weather to build your history.'}
           </p>
         </div>
       )}
 
       {!isLoading && filteredHistory && filteredHistory.length > 0 && (
-        <div className="shadow overflow-hidden border-b border-gray-200 rounded-lg">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+        <div className="shadow overflow-hidden border-b border-gray-200 dark:border-gray-700 rounded-lg">
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead className="bg-gray-50 dark:bg-gray-800">
               <tr>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                 >
                   City
                 </th>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                 >
                   Date & Time
                 </th>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                 >
                   Weather
                 </th>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                 >
                   Temperature
                 </th>
@@ -169,53 +177,55 @@ export default function HistoryPage() {
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
               {filteredHistory.map((item: SearchHistoryItem) => {
-                const result = typeof item.result === 'string' 
-                  ? JSON.parse(item.result) 
-                  : item.result;
+                // Extract weather data from the result
+                const weatherData = item.result?.current || item.result;
+                const parsedWeather = typeof weatherData === 'string' 
+                  ? JSON.parse(weatherData) 
+                  : weatherData;
                 
                 return (
-                  <tr key={item.id} className="hover:bg-gray-50">
+                  <tr key={item.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">{item.city}</div>
-                      {result.sys && <div className="text-sm text-gray-500">{result.sys.country}</div>}
+                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100 capitalize">{item.city}</div>
+                      {parsedWeather.sys && <div className="text-sm text-gray-500 dark:text-gray-400">{parsedWeather.sys.country}</div>}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
-                        {formatDate(item.createdAt / 1000)}
+                      <div className="text-sm text-gray-900 dark:text-gray-100">
+                        {formatDate(item.createdAt)}
                       </div>
-                      <div className="text-sm text-gray-500">
-                        {formatTime(item.createdAt / 1000)}
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                        {formatTime(item.createdAt)}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {result.weather && (
+                      {parsedWeather.weather && (
                         <div className="flex items-center">
                           <img
-                            src={`https://openweathermap.org/img/wn/${result.weather[0].icon}@2x.png`}
-                            alt={result.weather[0].description}
+                            src={getWeatherIconUrl(parsedWeather.weather[0].icon)}
+                            alt={parsedWeather.weather[0].description}
                             width={40}
                             height={40}
                             className="mr-2"
                           />
-                          <span className="text-sm text-gray-900 capitalize">
-                            {result.weather[0].description}
+                          <span className="text-sm text-gray-900 dark:text-gray-100 capitalize">
+                            {parsedWeather.weather[0].description}
                           </span>
                         </div>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {result.main && (
-                        <div className="text-sm text-gray-900">
-                          {Math.round(result.main.temp)}°C
+                      {parsedWeather.main && (
+                        <div className="text-sm text-gray-900 dark:text-gray-100">
+                          {Math.round(convertTemp(parsedWeather.main.temp))}{unit === 'celsius' ? '°C' : '°F'}
                         </div>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <button
                         onClick={() => handleViewWeather(item.city)}
-                        className="text-blue-600 hover:text-blue-900"
+                        className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300"
                       >
                         View Weather
                       </button>

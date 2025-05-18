@@ -6,13 +6,21 @@ export const getWeatherIconUrl = (iconCode: string): string => {
 };
 
 /**
- * Format date from timestamp
- * @param timestamp Unix timestamp
+ * Format date from timestamp or ISO string
+ * @param timestamp Unix timestamp (in milliseconds or seconds) or ISO string
  * @param timezone Timezone offset in seconds
  */
-export const formatDate = (timestamp: number, timezone: number = 0): string => {
-  // Convert to milliseconds and adjust for timezone
-  const date = new Date((timestamp + timezone) * 1000);
+export const formatDate = (timestamp: number | string, timezone: number = 0): string => {
+  let date: Date;
+  
+  if (typeof timestamp === 'string') {
+    date = new Date(timestamp);
+  } else {
+    // Convert to milliseconds if needed
+    const timestampMs = timestamp > 1e10 ? timestamp : timestamp * 1000;
+    date = new Date(timestampMs + (timezone * 1000));
+  }
+  
   return date.toLocaleDateString('en-US', {
     weekday: 'short',
     month: 'short',
@@ -21,13 +29,21 @@ export const formatDate = (timestamp: number, timezone: number = 0): string => {
 };
 
 /**
- * Format time from timestamp
- * @param timestamp Unix timestamp
+ * Format time from timestamp or ISO string
+ * @param timestamp Unix timestamp (in milliseconds or seconds) or ISO string
  * @param timezone Timezone offset in seconds
  */
-export const formatTime = (timestamp: number, timezone: number = 0): string => {
-  // Convert to milliseconds and adjust for timezone
-  const date = new Date((timestamp + timezone) * 1000);
+export const formatTime = (timestamp: number | string, timezone: number = 0): string => {
+  let date: Date;
+  
+  if (typeof timestamp === 'string') {
+    date = new Date(timestamp);
+  } else {
+    // Convert to milliseconds if needed
+    const timestampMs = timestamp > 1e10 ? timestamp : timestamp * 1000;
+    date = new Date(timestampMs + (timezone * 1000));
+  }
+  
   return date.toLocaleTimeString('en-US', {
     hour: '2-digit',
     minute: '2-digit',

@@ -1,9 +1,15 @@
 @import "tailwindcss";
 
 :root {
-  --foreground-rgb: 0, 0, 0;
+  --foreground-rgb: 31, 41, 55;
   --background-start-rgb: 240, 242, 245;
   --background-end-rgb: 255, 255, 255;
+}
+
+.dark {
+  --foreground-rgb: 229, 231, 235;
+  --background-start-rgb: 17, 24, 39;
+  --background-end-rgb: 31, 41, 55;
 }
 
 body {
@@ -23,7 +29,7 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: rgb(var(--background-start-rgb));
 }
 
 ::-webkit-scrollbar-thumb {
@@ -33,4 +39,32 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #a1a1a1;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: rgb(17, 24, 39);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #4b5563;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+/* Base text styles */
+@layer base {
+  h1 {
+    @apply text-gray-900 dark:text-gray-100;
+  }
+  h2, h3, h4, h5, h6 {
+    @apply text-gray-800 dark:text-gray-200;
+  }
+  p {
+    @apply text-gray-700 dark:text-gray-300;
+  }
+  a {
+    @apply text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300;
+  }
 }

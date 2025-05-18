@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { formatDate, formatTime, getWeatherIconUrl } from '@/lib/formatters';
 import { WeatherResponse } from '@/types';
+import { useTemperature } from '@/contexts/TemperatureContext';
+import TemperatureToggle from '@/components/TemperatureToggle';
 
 interface WeatherCardProps {
   data: WeatherResponse;
@@ -10,12 +12,13 @@ interface WeatherCardProps {
 
 const WeatherCard = ({ data }: WeatherCardProps) => {
   const [expandDetails, setExpandDetails] = useState(false);
+  const { unit, convertTemp } = useTemperature();
   
   // Weather data might be already parsed or might need parsing
   const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
 
   // Use metric units as backend provides data in metric
-  const tempUnit = '°C';
+  const tempUnit = unit === 'celsius' ? '°C' : '°F';
   const speedUnit = 'm/s';
   
   // Get the first weather condition (primary)
@@ -23,29 +26,32 @@ const WeatherCard = ({ data }: WeatherCardProps) => {
   const iconUrl = getWeatherIconUrl(weather.icon);
   
   return (
-    <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
       {/* Card Header */}
       <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-4 sm:p-6 text-white">
         <div className="flex flex-col sm:flex-row justify-between items-center">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-bold">{parsedData.name}, {parsedData.sys.country}</h2>
+            <div className="flex items-center gap-3">
+              <h2 className="text-2xl sm:text-3xl font-bold">{parsedData.name}, {parsedData.sys.country}</h2>
+              <TemperatureToggle />
+            </div>
             <p className="text-blue-100 mt-1">
               {formatDate(parsedData.dt, parsedData.timezone)} | {formatTime(parsedData.dt, parsedData.timezone)}
             </p>
           </div>
           <div className="mt-4 sm:mt-0 flex flex-col items-center">
             <span className="text-4xl sm:text-5xl font-bold">
-              {Math.round(parsedData.main.temp)}{tempUnit}
+              {Math.round(convertTemp(parsedData.main.temp))}{tempUnit}
             </span>
             <span className="text-blue-100">
-              Feels like {Math.round(parsedData.main.feels_like)}{tempUnit}
+              Feels like {Math.round(convertTemp(parsedData.main.feels_like))}{tempUnit}
             </span>
           </div>
         </div>
       </div>
       
       {/* Weather Icon and Description */}
-      <div className="p-4 flex items-center justify-center bg-gray-50">
+      <div className="p-4 flex items-center justify-center bg-gray-50 dark:bg-gray-700">
         <div className="flex flex-col items-center px-4 py-2">
           <img
             src={iconUrl}
@@ -54,7 +60,7 @@ const WeatherCard = ({ data }: WeatherCardProps) => {
             height={100}
             className="h-24 w-24"
           />
-          <p className="text-gray-800 text-lg capitalize">{weather.description}</p>
+          <p className="text-gray-800 dark:text-gray-100 text-lg capitalize">{weather.description}</p>
         </div>
       </div>
       
@@ -235,8 +241,8 @@ const WeatherCard = ({ data }: WeatherCardProps) => {
               >
                 <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"></path>
               </svg>
-              <span className="text-sm text-gray-500">Min Temp</span>
-              <span className="font-semibold">{Math.round(parsedData.main.temp_min)}{tempUnit}</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">Min Temp</span>
+              <span className="font-semibold text-gray-700 dark:text-gray-200">{Math.round(convertTemp(parsedData.main.temp_min))}{tempUnit}</span>
             </div>
             
             <div className="flex flex-col items-center p-2">
@@ -254,8 +260,8 @@ const WeatherCard = ({ data }: WeatherCardProps) => {
               >
                 <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"></path>
               </svg>
-              <span className="text-sm text-gray-500">Max Temp</span>
-              <span className="font-semibold">{Math.round(parsedData.main.temp_max)}{tempUnit}</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">Max Temp</span>
+              <span className="font-semibold text-gray-700 dark:text-gray-200">{Math.round(convertTemp(parsedData.main.temp_max))}{tempUnit}</span>
             </div>
           </div>
         )}

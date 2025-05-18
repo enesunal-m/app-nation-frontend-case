@@ -21,7 +21,7 @@ export default function AuthLayout({
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900">
         <LoadingSpinner size="lg" />
       </div>
     );
@@ -32,8 +32,10 @@ export default function AuthLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {children}
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="text-gray-800 dark:text-gray-200">
+        {children}
+      </div>
     </div>
   );
 }

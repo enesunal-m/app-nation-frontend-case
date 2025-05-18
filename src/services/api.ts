@@ -1,8 +1,9 @@
 import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 import { WeatherResponse, ForecastResponse } from '@/types';
+import Cookies from 'js-cookie';
 
 // Create base API instance
-const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000/api';
+const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.app-nation-case.live/api';
 
 const api = axios.create({
   baseURL,
@@ -13,7 +14,7 @@ const api = axios.create({
 
 // Auth token interceptor
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('accessToken');
+  const token = Cookies.get('accessToken');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -32,7 +33,7 @@ api.interceptors.response.use(
       
       try {
         // Try to refresh the token
-        const refreshToken = localStorage.getItem('refreshToken');
+        const refreshToken = Cookies.get('refreshToken');
         if (!refreshToken) {
           // No refresh token, redirect to login
           window.location.href = '/login';
@@ -45,8 +46,8 @@ api.interceptors.response.use(
         
         // Store new tokens
         const { access_token, refresh_token } = response.data;
-        localStorage.setItem('accessToken', access_token);
-        localStorage.setItem('refreshToken', refresh_token);
+        Cookies.set('accessToken', access_token, { secure: true, sameSite: 'strict' });
+        Cookies.set('refreshToken', refresh_token, { secure: true, sameSite: 'strict' });
         
         // Retry the original request with the new token
         if (originalRequest.headers) {
@@ -56,8 +57,8 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         // Token refresh failed, redirect to login
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
+        Cookies.remove('accessToken');
+        Cookies.remove('refreshToken');
         window.location.href = '/login';
         return Promise.reject(refreshError);
       }
@@ -70,8 +71,30 @@ api.interceptors.response.use(
 // Auth API
 export const authAPI = {
   login: async (email: string, password: string) => {
-    const response = await api.post('/auth/login', { email, password });
-    return response.data;
+    try {
+      const response = await axios.post(`${baseURL}/auth/login`, 
+        { email, password },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          validateStatus: (status) => {
+            return status >= 200 && status < 500;
+          }
+        }
+      );
+      
+      if (response.status >= 400) {
+        throw new Error(response.data?.message || 'Invalid credentials');
+      }
+      
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.data?.message) {
+        throw new Error(error.response.data.message);
+      }
+      throw new Error('Login failed. Please check your credentials.');
+    }
   },
   
   register: async (name: string, email: string, password: string) => {
@@ -122,6 +145,22 @@ export const weatherAPI = {
       return response.data;
     } catch (error) {
       if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.message || 'Failed to fetch weather data');
+      }
+      throw new Error('An unexpected error occurred');
+    }
+  },
+  
+  // Get both current weather and forecast in a single request
+  getWeatherAndForecast: async (city: string): Promise<{ current: WeatherResponse; forecast: ForecastResponse }> => {
+    try {
+      const response = await api.get(`/weather/combined/${encodeURIComponent(city)}`);
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 404) {
+          throw new Error(`City '${city}' not found. Please check the spelling and try again.`);
+        }
         throw new Error(error.response?.data?.message || 'Failed to fetch weather data');
       }
       throw new Error('An unexpected error occurred');

@@ -6,11 +6,28 @@ const config: Config = {
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
         'weather-primary': '#3b82f6',
         'weather-secondary': '#93c5fd',
+        'bg-primary': {
+          light: '#ffffff',
+          dark: '#1a1a1a',
+        },
+        'bg-secondary': {
+          light: '#f3f4f6',
+          dark: '#2d2d2d',
+        },
+        'text-primary': {
+          light: '#111827',
+          dark: '#f3f4f6',
+        },
+        'text-secondary': {
+          light: '#4b5563',
+          dark: '#9ca3af',
+        },
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',

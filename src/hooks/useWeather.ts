@@ -3,42 +3,28 @@ import { weatherAPI } from '@/services/api';
 import { ForecastResponse, WeatherResponse, DayForecast } from '@/types';
 import { groupForecastByDay } from '@/lib/formatters';
 
-// Typed fetchers for SWR
-const currentWeatherFetcher = async ([_, city]: readonly [string, string]): Promise<WeatherResponse> => {
+// Typed fetcher for SWR
+const weatherAndForecastFetcher = async ([_, city]: readonly [string, string]): Promise<{
+  current: WeatherResponse;
+  forecast: ForecastResponse;
+}> => {
   if (!city) throw new Error('City is required');
-  return await weatherAPI.getWeatherByCity(city);
-};
-
-const forecastWeatherFetcher = async ([_, city]: readonly [string, string]): Promise<ForecastResponse> => {
-  if (!city) throw new Error('City is required');
-  return await weatherAPI.getForecast(city);
+  return await weatherAPI.getWeatherAndForecast(city);
 };
 
 export const useWeather = (city: string) => {
-  // Fetch current weather
+  // Fetch both current weather and forecast data
   const { 
-    data: weatherData, 
-    error: weatherError, 
-    isLoading: isWeatherLoading,
-    mutate: mutateWeather
-  } = useSWR<WeatherResponse>(
-    city ? ['weather', city] : null,
-    currentWeatherFetcher,
-    {
-      revalidateOnFocus: false,
-      dedupingInterval: 300000, // 5 minutes
-    }
-  );
-  
-  // Fetch 5-day forecast
-  const { 
-    data: forecastData, 
-    error: forecastError, 
-    isLoading: isForecastLoading,
-    mutate: mutateForecast
-  } = useSWR<ForecastResponse>(
-    city ? ['forecast', city] : null,
-    forecastWeatherFetcher,
+    data, 
+    error, 
+    isLoading,
+    mutate
+  } = useSWR<{
+    current: WeatherResponse;
+    forecast: ForecastResponse;
+  }>(
+    city ? ['weather-and-forecast', city] : null,
+    weatherAndForecastFetcher,
     {
       revalidateOnFocus: false,
       dedupingInterval: 300000, // 5 minutes
@@ -46,23 +32,17 @@ export const useWeather = (city: string) => {
   );
   
   // Process the forecast data
-  const dailyForecast: DayForecast[] = forecastData 
-    ? groupForecastByDay(forecastData).slice(0, 5) // Next 5 days
+  const dailyForecast: DayForecast[] = data?.forecast 
+    ? groupForecastByDay(data.forecast).slice(0, 5) // Next 5 days
     : [];
   
-  // Function to refresh data
-  const refreshData = () => {
-    mutateWeather();
-    mutateForecast();
-  };
-  
   return {
-    weatherData,
-    forecastData,
+    weatherData: data?.current,
+    forecastData: data?.forecast,
     dailyForecast,
-    error: weatherError || forecastError,
-    isLoading: isWeatherLoading || isForecastLoading,
-    refreshData
+    error,
+    isLoading,
+    refreshData: mutate
   };
 };
 

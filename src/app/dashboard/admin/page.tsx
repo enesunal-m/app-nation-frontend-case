@@ -4,9 +4,11 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWeatherHistory } from '@/hooks/useWeather';
-import { formatDate, formatTime } from '@/lib/formatters';
+import { formatDate, formatTime, getWeatherIconUrl } from '@/lib/formatters';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { SearchHistoryItem } from '@/types';
+import { useTemperature } from '@/contexts/TemperatureContext';
+import TemperatureToggle from '@/components/TemperatureToggle';
 
 export default function AdminPage() {
   const { user } = useAuth();
@@ -14,6 +16,7 @@ export default function AdminPage() {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterBy, setFilterBy] = useState<'city' | 'user'>('city');
+  const { unit, convertTemp } = useTemperature();
 
   // Redirect if not admin
   useEffect(() => {
@@ -21,6 +24,11 @@ export default function AdminPage() {
       router.push('/dashboard');
     }
   }, [user, router]);
+
+  // Refresh history data when the page is mounted
+  useEffect(() => {
+    refreshHistory();
+  }, [refreshHistory]);
   
   // Filter history items by search term
   const filteredHistory = historyData?.filter((item: SearchHistoryItem) => {
@@ -49,8 +57,8 @@ export default function AdminPage() {
             d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
           />
         </svg>
-        <h3 className="mt-2 text-sm font-medium text-gray-900">Access Denied</h3>
-        <p className="mt-1 text-sm text-gray-500">
+        <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">Access Denied</h3>
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
           You do not have permission to access this page.
         </p>
       </div>
@@ -60,12 +68,15 @@ export default function AdminPage() {
   return (
     <div>
       <header className="text-center mb-8">
-        <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
+        <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
           Admin Dashboard
         </h1>
-        <p className="text-gray-600">
+        <p className="text-gray-600 dark:text-gray-400 mb-4">
           View all user queries and weather data.
         </p>
+        <div className="flex justify-center">
+          <TemperatureToggle />
+        </div>
       </header>
 
       <div className="mb-6">
@@ -73,7 +84,7 @@ export default function AdminPage() {
           <div className="w-full sm:w-auto flex-grow relative max-w-md">
             <input
               type="text"
-              className="w-full py-2 px-4 pr-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full py-2 px-4 pr-10 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder={`Search by ${filterBy}...`}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -97,11 +108,11 @@ export default function AdminPage() {
 
           <div className="flex items-center">
             <div className="flex items-center space-x-2 mr-4">
-              <label className="text-sm text-gray-700">Filter by:</label>
+              <label className="text-sm text-gray-700 dark:text-gray-300">Filter by:</label>
               <select
                 value={filterBy}
                 onChange={(e) => setFilterBy(e.target.value as 'city' | 'user')}
-                className="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="city">City</option>
                 <option value="user">User</option>
@@ -175,100 +186,102 @@ export default function AdminPage() {
               d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
             />
           </svg>
-          <h3 className="mt-2 text-sm font-medium text-gray-900">No queries found</h3>
-          <p className="mt-1 text-sm text-gray-500">
+          <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">No queries found</h3>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             {searchTerm ? 'No results match your search.' : 'No weather queries have been made yet.'}
           </p>
         </div>
       )}
 
       {!isLoading && filteredHistory && filteredHistory.length > 0 && (
-        <div className="shadow overflow-hidden border-b border-gray-200 rounded-lg overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+        <div className="shadow overflow-hidden border-b border-gray-200 dark:border-gray-700 rounded-lg overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead className="bg-gray-50 dark:bg-gray-800">
               <tr>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                 >
                   User
                 </th>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                 >
                   City
                 </th>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                 >
                   Date & Time
                 </th>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                 >
                   Weather
                 </th>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                 >
                   Temperature
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
               {filteredHistory.map((item: SearchHistoryItem) => {
-                const result = typeof item.result === 'string' 
-                  ? JSON.parse(item.result) 
-                  : item.result;
+                // Extract weather data from the result
+                const weatherData = item.result?.current || item.result;
+                const parsedWeather = typeof weatherData === 'string' 
+                  ? JSON.parse(weatherData) 
+                  : weatherData;
                 
                 return (
-                  <tr key={item.id} className="hover:bg-gray-50">
+                  <tr key={item.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
                     <td className="px-6 py-4 whitespace-nowrap">
                       {item.user ? (
                         <div>
-                          <div className="text-sm font-medium text-gray-900">{item.user.name || 'N/A'}</div>
-                          <div className="text-sm text-gray-500">{item.user.email}</div>
+                          <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{item.user.name || 'N/A'}</div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400">{item.user.email}</div>
                         </div>
                       ) : (
-                        <div className="text-sm text-gray-500">Unknown</div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">Unknown</div>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">{item.city}</div>
-                      {result.sys && <div className="text-sm text-gray-500">{result.sys.country}</div>}
+                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{item.city}</div>
+                      {parsedWeather.sys && <div className="text-sm text-gray-500 dark:text-gray-400">{parsedWeather.sys.country}</div>}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
-                        {formatDate(item.createdAt / 1000)}
+                      <div className="text-sm text-gray-900 dark:text-gray-100">
+                        {formatDate(item.createdAt)}
                       </div>
-                      <div className="text-sm text-gray-500">
-                        {formatTime(item.createdAt / 1000)}
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                        {formatTime(item.createdAt)}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {result.weather && (
+                      {parsedWeather.weather && (
                         <div className="flex items-center">
                           <img
-                            src={`https://openweathermap.org/img/wn/${result.weather[0].icon}@2x.png`}
-                            alt={result.weather[0].description}
+                            src={getWeatherIconUrl(parsedWeather.weather[0].icon)}
+                            alt={parsedWeather.weather[0].description}
                             width={40}
                             height={40}
                             className="mr-2"
                           />
-                          <span className="text-sm text-gray-900 capitalize">
-                            {result.weather[0].description}
+                          <span className="text-sm text-gray-900 dark:text-gray-100 capitalize">
+                            {parsedWeather.weather[0].description}
                           </span>
                         </div>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {result.main && (
-                        <div className="text-sm text-gray-900">
-                          {Math.round(result.main.temp)}°C
+                      {parsedWeather.main && (
+                        <div className="text-sm text-gray-900 dark:text-gray-100">
+                          {Math.round(convertTemp(parsedWeather.main.temp))}{unit === 'celsius' ? '°C' : '°F'}
                         </div>
                       )}
                     </td>

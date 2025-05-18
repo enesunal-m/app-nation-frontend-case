@@ -10,9 +10,16 @@ export default function LoginForm() {
   const [rememberMe, setRememberMe] = useState(false);
   const { login, isLoading, error } = useAuth();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await login(email, password);
+  const handleLogin = async () => {
+    if (!email || !password) {
+      return;
+    }
+
+    try {
+      await login(email, password);
+    } catch (err) {
+      // Error will be handled by AuthContext
+    }
   };
 
   return (
@@ -55,7 +62,7 @@ export default function LoginForm() {
           </div>
         )}
         
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        <div className="mt-8 space-y-6">
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
               <label htmlFor="email-address" className="sr-only">
@@ -117,7 +124,8 @@ export default function LoginForm() {
 
           <div>
             <button
-              type="submit"
+              onClick={handleLogin}
+              type="button"
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               disabled={isLoading}
             >
@@ -164,7 +172,7 @@ export default function LoginForm() {
               {isLoading ? 'Signing in...' : 'Sign in'}
             </button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );
