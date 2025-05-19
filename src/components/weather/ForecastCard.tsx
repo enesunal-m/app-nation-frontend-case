@@ -3,6 +3,7 @@
 import { formatDate, getWeatherIconUrl } from '@/lib/formatters';
 import { DayForecast } from '@/types';
 import { useTemperature } from '@/contexts/TemperatureContext';
+import Image from 'next/image';
 
 interface ForecastCardProps {
   forecast: DayForecast;
@@ -44,7 +45,7 @@ const ForecastCard = ({ forecast, isToday = false }: ForecastCardProps) => {
       
       <div className="bg-white dark:bg-gray-800 p-4 flex flex-col items-center transition-colors duration-200">
         <div className="relative">
-          <img 
+          <Image 
             src={iconUrl} 
             alt={forecast.weather.description}
             width={64}

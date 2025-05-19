@@ -8,6 +8,7 @@ import { formatDate, formatTime, getWeatherIconUrl } from '@/lib/formatters';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { SearchHistoryItem } from '@/types';
 import { useTemperature } from '@/contexts/TemperatureContext';
+import Image from 'next/image';
 
 export default function AdminPage() {
   const { user } = useAuth();
@@ -258,7 +259,7 @@ export default function AdminPage() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       {parsedWeather.weather && (
                         <div className="flex items-center">
-                          <img
+                          <Image
                             src={getWeatherIconUrl(parsedWeather.weather[0].icon)}
                             alt={parsedWeather.weather[0].description}
                             width={40}
