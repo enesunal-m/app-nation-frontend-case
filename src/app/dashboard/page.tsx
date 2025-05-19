@@ -118,7 +118,7 @@ export default function ResponsiveDashboard() {
           onLocationSearch={handleLocationSearch}
           isLoading={isLoading} 
         />
-        <ErrorDisplay />
+      <ErrorDisplay />
       </motion.div>
       
       <AnimatePresence mode="wait">
@@ -132,8 +132,8 @@ export default function ResponsiveDashboard() {
             <LoadingSpinner />
           </motion.div>
         )}
-        
-        {!isLoading && weatherData && (
+      
+      {!isLoading && weatherData && (
           <motion.div 
             key="weather-data"
             initial={{ opacity: 0 }}
@@ -141,12 +141,12 @@ export default function ResponsiveDashboard() {
             exit={{ opacity: 0 }}
             className="space-y-8"
           >
-            <WeatherCard data={weatherData} />
-            {dailyForecast.length > 0 && <ForecastSection forecasts={dailyForecast} />}
+          <WeatherCard data={weatherData} />
+          {dailyForecast.length > 0 && <ForecastSection forecasts={dailyForecast} />}
           </motion.div>
-        )}
+      )}
 
-        {!isLoading && !weatherData && !error && (
+      {!isLoading && !weatherData && !error && (
           <motion.div 
             key="empty-state"
             initial={{ opacity: 0 }}
@@ -154,20 +154,20 @@ export default function ResponsiveDashboard() {
             exit={{ opacity: 0 }}
             className="text-center py-12 bg-gray-50 dark:bg-gray-800/50 rounded-lg mt-8"
           >
-            <svg
+          <svg
               className="mx-auto h-20 w-20 text-gray-400 dark:text-gray-600"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
               strokeWidth="1.5"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
                 d="M2.25 15a4.5 4.5 0 004.5 4.5H18a3.75 3.75 0 001.332-7.257 3 3 0 00-3.758-3.848 5.25 5.25 0 00-10.233 2.33A4.502 4.502 0 002.25 15z"
-              />
-            </svg>
+            />
+          </svg>
             <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-gray-100">No weather data yet</h3>
             <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 max-w-md mx-auto">
               Enter a city name in the search bar above to get started. You'll see current weather conditions and a 5-day forecast.
@@ -191,9 +191,9 @@ export default function ResponsiveDashboard() {
               >
                 Try Tokyo
               </button>
-            </div>
+        </div>
           </motion.div>
-        )}
+      )}
       </AnimatePresence>
     </motion.div>
   );

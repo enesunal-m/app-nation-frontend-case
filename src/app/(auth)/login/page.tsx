@@ -25,7 +25,7 @@ export default function LoginPage() {
 
   // Only render the form if not authenticated
   if (!isAuthenticated) {
-    return <LoginForm />;
+  return <LoginForm />;
   }
 
   return null; // Will redirect in useEffect

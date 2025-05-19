@@ -88,7 +88,7 @@ export const authAPI = {
         throw new Error(response.data?.message || 'Invalid credentials');
       }
       
-      return response.data;
+    return response.data;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.data?.message) {
         throw new Error(error.response.data.message);
@@ -135,7 +135,7 @@ export const weatherAPI = {
       throw new Error('An unexpected error occurred');
     }
   },
-
+  
   // Get weather by coordinates
   getWeatherByCoordinates: async (lat: number, lon: number): Promise<WeatherResponse> => {
     try {

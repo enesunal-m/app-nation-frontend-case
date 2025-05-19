@@ -3,9 +3,8 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { motion } from 'framer-motion';
-import ThemeToggle from '@/components/ui/ThemeToggle';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import ThemeToggle from '@/components/ui/ThemeToggle';
 
 export default function AuthLayout({
   children,
@@ -23,8 +22,14 @@ export default function AuthLayout({
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-800">
-        <LoadingSpinner size="lg" message="Authenticating..." />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800 p-4">
+        <div className="max-w-md w-full space-y-8 text-center">
+          <LoadingSpinner 
+            size="lg" 
+            message="Verifying authentication..."
+            showBackendMessage={false}
+          />
+        </div>
       </div>
     );
   }
@@ -46,14 +51,9 @@ export default function AuthLayout({
       </div>
 
       <div className="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="w-full max-w-md"
-        >
+        <div className="w-full max-w-md animate-fade-in">
           {children}
-        </motion.div>
+        </div>
       </div>
 
       <footer className="py-4 text-center text-sm text-gray-500 dark:text-gray-400">
