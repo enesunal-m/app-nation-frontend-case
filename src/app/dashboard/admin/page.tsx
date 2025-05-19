@@ -8,7 +8,6 @@ import { formatDate, formatTime, getWeatherIconUrl } from '@/lib/formatters';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { SearchHistoryItem } from '@/types';
 import { useTemperature } from '@/contexts/TemperatureContext';
-import TemperatureToggle from '@/components/TemperatureToggle';
 
 export default function AdminPage() {
   const { user } = useAuth();
@@ -68,15 +67,9 @@ export default function AdminPage() {
   return (
     <div>
       <header className="text-center mb-8">
-        <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-          Admin Dashboard
-        </h1>
         <p className="text-gray-600 dark:text-gray-400 mb-4">
           View all user queries and weather data.
         </p>
-        <div className="flex justify-center">
-          <TemperatureToggle />
-        </div>
       </header>
 
       <div className="mb-6">

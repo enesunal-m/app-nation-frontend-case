@@ -9,7 +9,6 @@ import { formatDate, formatTime, getWeatherIconUrl } from '@/lib/formatters';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { SearchHistoryItem } from '@/types';
 import { useTemperature } from '@/contexts/TemperatureContext';
-import TemperatureToggle from '@/components/TemperatureToggle';
 
 export default function HistoryPage() {
   const { historyData, isLoading, error, refreshHistory } = useWeatherHistory();
@@ -39,9 +38,6 @@ export default function HistoryPage() {
         <p className="text-gray-600 dark:text-gray-400 mb-4">
           View your recent weather searches and click on a city to see the current weather.
         </p>
-        <div className="flex justify-center">
-          <TemperatureToggle />
-        </div>
       </header>
 
       <div className="mb-6">

@@ -9,41 +9,31 @@ const config: Config = {
   darkMode: 'class',
   theme: {
     extend: {
-      colors: {
-        'weather-primary': '#3b82f6',
-        'weather-secondary': '#93c5fd',
-        'bg-primary': {
-          light: '#ffffff',
-          dark: '#1a1a1a',
+      // Add animation keyframes
+      animation: {
+        'fade-in': 'fadeIn 0.5s ease-in-out',
+        'slide-up': 'slideUp 0.5s ease-out',
+        'slide-in-right': 'slideInRight 0.5s ease-out',
+        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'bounce-slow': 'bounce 2s infinite',
+      },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
         },
-        'bg-secondary': {
-          light: '#f3f4f6',
-          dark: '#2d2d2d',
+        slideUp: {
+          '0%': { transform: 'translateY(20px)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
         },
-        'text-primary': {
-          light: '#111827',
-          dark: '#f3f4f6',
-        },
-        'text-secondary': {
-          light: '#4b5563',
-          dark: '#9ca3af',
+        slideInRight: {
+          '0%': { transform: 'translateX(20px)', opacity: '0' },
+          '100%': { transform: 'translateX(0)', opacity: '1' },
         },
       },
-      backgroundImage: {
-        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
-      },
-      boxShadow: {
-        card: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-      },
-    },
-    container: {
-      padding: {
-        DEFAULT: '1rem',
-        sm: '2rem',
-        lg: '4rem',
-        xl: '5rem',
-        '2xl': '6rem',
+      // Add transition duration values
+      transitionDuration: {
+        '400': '400ms',
       },
     },
   },
