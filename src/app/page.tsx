@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import LoadingScreen from '@/components/ui/LoadingScreen';
 
 export default function Home() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -19,11 +19,8 @@ export default function Home() {
     }
   }, [isAuthenticated, isLoading, router]);
 
-  // Show loading spinner while checking authentication
+  // Show the improved loading page while checking authentication and backend status
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center">
-      <h1 className="text-2xl font-bold mb-8">Weather Dashboard</h1>
-      <LoadingSpinner size="lg" message="Loading application..." />
-    </div>
+    <LoadingScreen message="Initializing Weather Dashboard..." />
   );
 }

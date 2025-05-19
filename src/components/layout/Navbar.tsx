@@ -2,24 +2,57 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import TemperatureToggle from '@/components/ui/TemperatureToggle';
+import { motion } from 'framer-motion';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
   const { user, logout } = useAuth();
   const pathname = usePathname();
+  const router = useRouter();
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
 
+  // Check if the link matches the current path
   const isActive = (path: string) => {
     return pathname === path;
   };
+  
+  // Handle navigation in a way that doesn't block the UI
+  const handleNavigation = (path: string) => {
+    // Only if we're not already navigating
+    if (!isNavigating && pathname !== path) {
+      setIsNavigating(true);
+      
+      // Close mobile menu if open
+      if (isOpen) {
+        setIsOpen(false);
+      }
+      
+      // Delay actual navigation slightly to allow UI update
+      setTimeout(() => {
+        router.push(path);
+        // Reset navigation state after a slight delay
+        setTimeout(() => {
+          setIsNavigating(false);
+        }, 200);
+      }, 10);
+    }
+    
+    return false; // Prevent default link behavior
+  };
+  
+  // Reset navigation state on path change
+  useEffect(() => {
+    setIsNavigating(false);
+  }, [pathname]);
   
   // Listen for scroll events to add shadow to navbar
   useEffect(() => {
@@ -42,7 +75,14 @@ export default function Navbar() {
         <div className="flex justify-between h-16">
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
-              <Link href="/dashboard" className="text-xl font-bold text-blue-600 dark:text-blue-400 flex items-center transition-transform hover:scale-105">
+              <a 
+                href="#" 
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleNavigation('/dashboard');
+                }}
+                className="text-xl font-bold text-blue-600 dark:text-blue-400 flex items-center transition-transform hover:scale-105"
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-7 w-7 mr-2 animate-pulse-slow"
@@ -67,16 +107,21 @@ export default function Navbar() {
                 </svg>
                 <span className="hidden sm:inline">Weather Dashboard</span>
                 <span className="sm:hidden">Weather</span>
-              </Link>
+              </a>
             </div>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-4">
-              <Link
-                href="/dashboard"
-                className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-all duration-200 ${
+              {/* Dashboard Link */}
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleNavigation('/dashboard');
+                }}
+                className={`inline-flex items-center px-3 py-2 border-b-2 text-sm font-medium transition-all duration-200 ${
                   isActive('/dashboard')
                     ? 'border-blue-500 text-gray-900 dark:text-white dark:border-blue-400'
-                    : 'border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 hover:text-gray-700 dark:hover:text-gray-100 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 px-3 rounded-md'
-                }`}
+                    : 'border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 hover:text-gray-700 dark:hover:text-gray-100 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md'
+                } ${isNavigating ? 'opacity-50 pointer-events-none' : ''}`}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -93,14 +138,20 @@ export default function Navbar() {
                   />
                 </svg>
                 Home
-              </Link>
-              <Link
-                href="/dashboard/history"
-                className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-all duration-200 ${
+              </a>
+              
+              {/* History Link */}
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleNavigation('/dashboard/history');
+                }}
+                className={`inline-flex items-center px-3 py-2 border-b-2 text-sm font-medium transition-all duration-200 ${
                   isActive('/dashboard/history')
                     ? 'border-blue-500 text-gray-900 dark:text-white dark:border-blue-400'
-                    : 'border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 hover:text-gray-700 dark:hover:text-gray-100 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 px-3 rounded-md'
-                }`}
+                    : 'border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 hover:text-gray-700 dark:hover:text-gray-100 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md'
+                } ${isNavigating ? 'opacity-50 pointer-events-none' : ''}`}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -117,15 +168,21 @@ export default function Navbar() {
                   />
                 </svg>
                 History
-              </Link>
+              </a>
+              
+              {/* Admin Link - Only for admin users */}
               {user?.role === 'ADMIN' && (
-                <Link
-                  href="/dashboard/admin"
-                  className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-all duration-200 ${
+                <a
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleNavigation('/dashboard/admin');
+                  }}
+                  className={`inline-flex items-center px-3 py-2 border-b-2 text-sm font-medium transition-all duration-200 ${
                     isActive('/dashboard/admin')
                       ? 'border-blue-500 text-gray-900 dark:text-white dark:border-blue-400'
-                      : 'border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 hover:text-gray-700 dark:hover:text-gray-100 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 px-3 rounded-md'
-                  }`}
+                      : 'border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 hover:text-gray-700 dark:hover:text-gray-100 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md'
+                  } ${isNavigating ? 'opacity-50 pointer-events-none' : ''}`}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -148,10 +205,30 @@ export default function Navbar() {
                     />
                   </svg>
                   Admin
-                </Link>
+                </a>
               )}
             </div>
           </div>
+          
+          {/* Loading indicator for navigation */}
+          {isNavigating && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500 dark:bg-blue-400"
+            >
+              <motion.div 
+                className="h-full bg-white"
+                animate={{ x: ["0%", "100%"] }}
+                transition={{ 
+                  repeat: Infinity, 
+                  duration: 1,
+                  ease: "linear"
+                }}
+              />
+            </motion.div>
+          )}
+          
           <div className="hidden sm:ml-6 sm:flex sm:items-center sm:space-x-4">
             <div className="transition-all duration-300 hover:scale-105">
               <TemperatureToggle />
@@ -179,6 +256,8 @@ export default function Navbar() {
               </div>
             </div>
           </div>
+          
+          {/* Mobile menu button */}
           <div className="-mr-2 flex items-center sm:hidden">
             <button
               onClick={toggleMenu}
@@ -224,16 +303,21 @@ export default function Navbar() {
         </div>
       </div>
 
+      {/* Mobile menu, show/hide based on menu state */}
       <div className={`${isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'} sm:hidden bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-300 ease-in-out`}>
         <div className="pt-2 pb-3 space-y-1">
-          <Link
-            href="/dashboard"
+          {/* Dashboard Link - Mobile */}
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              handleNavigation('/dashboard');
+            }}
             className={`block py-2 px-3 rounded-md text-base font-medium ${
               isActive('/dashboard')
                 ? 'bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400'
                 : 'text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-700 dark:hover:text-gray-200'
-            }`}
-            onClick={() => setIsOpen(false)}
+            } ${isNavigating ? 'opacity-50 pointer-events-none' : ''}`}
           >
             <div className="flex items-center">
               <svg
@@ -252,15 +336,20 @@ export default function Navbar() {
               </svg>
               Home
             </div>
-          </Link>
-          <Link
-            href="/dashboard/history"
+          </a>
+          
+          {/* History Link - Mobile */}
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              handleNavigation('/dashboard/history');
+            }}
             className={`block py-2 px-3 rounded-md text-base font-medium ${
               isActive('/dashboard/history')
                 ? 'bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400'
                 : 'text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-700 dark:hover:text-gray-200'
-            }`}
-            onClick={() => setIsOpen(false)}
+            } ${isNavigating ? 'opacity-50 pointer-events-none' : ''}`}
           >
             <div className="flex items-center">
               <svg
@@ -279,16 +368,21 @@ export default function Navbar() {
               </svg>
               History
             </div>
-          </Link>
+          </a>
+          
+          {/* Admin Link - Mobile */}
           {user?.role === 'ADMIN' && (
-            <Link
-              href="/dashboard/admin"
+            <a
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                handleNavigation('/dashboard/admin');
+              }}
               className={`block py-2 px-3 rounded-md text-base font-medium ${
                 isActive('/dashboard/admin')
                   ? 'bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400'
                   : 'text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-700 dark:hover:text-gray-200'
-              }`}
-              onClick={() => setIsOpen(false)}
+              } ${isNavigating ? 'opacity-50 pointer-events-none' : ''}`}
             >
               <div className="flex items-center">
                 <svg
@@ -313,9 +407,11 @@ export default function Navbar() {
                 </svg>
                 Admin
               </div>
-            </Link>
+            </a>
           )}
         </div>
+        
+        {/* Mobile user menu */}
         <div className="pt-4 pb-3 border-t border-gray-200 dark:border-gray-700">
           <div className="flex items-center px-4 py-2">
             <div className="flex-shrink-0">
@@ -345,8 +441,8 @@ export default function Navbar() {
             </div>
             <button
               onClick={() => {
-                logout();
                 setIsOpen(false);
+                logout();
               }}
               className="w-full flex items-center px-3 py-2 rounded-md text-base font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
             >
@@ -369,6 +465,18 @@ export default function Navbar() {
           </div>
         </div>
       </div>
+      
+      {/* Navigation progress indicator */}
+      {isNavigating && (
+        <div className="fixed top-0 left-0 right-0 z-50">
+          <motion.div
+            className="h-1 bg-blue-500 dark:bg-blue-400"
+            initial={{ width: "0%" }}
+            animate={{ width: "100%" }}
+            transition={{ duration: 1 }}
+          />
+        </div>
+      )}
     </nav>
   );
 }
