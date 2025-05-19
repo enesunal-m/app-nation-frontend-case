@@ -135,11 +135,26 @@ export const weatherAPI = {
       throw new Error('An unexpected error occurred');
     }
   },
-  
+
   // Get weather by coordinates
   getWeatherByCoordinates: async (lat: number, lon: number): Promise<WeatherResponse> => {
     try {
       const response = await api.get(`/weather/coordinates`, {
+        params: { lat, lon }
+      });
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.message || 'Failed to fetch weather data');
+      }
+      throw new Error('An unexpected error occurred');
+    }
+  },
+  
+  // Get both current weather and forecast by coordinates in a single request
+  getWeatherAndForecastByCoordinates: async (lat: number, lon: number): Promise<{ current: WeatherResponse; forecast: ForecastResponse }> => {
+    try {
+      const response = await api.get(`/weather/coordinates/combined`, {
         params: { lat, lon }
       });
       return response.data;

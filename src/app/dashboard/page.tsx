@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { setCurrentCity, setError, setLoading } from '@/store/weatherSlice';
 import { useWeather } from '@/hooks/useWeather';
@@ -13,19 +13,43 @@ import ErrorDisplay from '@/components/dashboard/ErrorDisplay';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import WeatherCard from '@/components/weather/WeatherCard';
 import ForecastSection from '@/components/weather/ForecastSection';
+import CurrentLocationButton from '@/components/weather/CurrentLocationButton';
 
 export default function ResponsiveDashboard() {
   const dispatch = useAppDispatch();
   const { currentCity } = useAppSelector((state) => state.weather);
   const { user } = useAuth();
+  const [coordinates, setCoordinates] = useState<{ lat: number; lon: number } | undefined>();
   
   // Fetch weather data using our custom hook
-  const { weatherData, dailyForecast, error, isLoading } = useWeather(currentCity);
+  const { weatherData, dailyForecast, error, isLoading } = useWeather(
+    coordinates ? undefined : currentCity,
+    coordinates
+  );
 
   // Handle search
   const handleSearch = (city: string) => {
     dispatch(setLoading(true));
     dispatch(setCurrentCity(city));
+    // Reset coordinates when searching by city
+    setCoordinates(undefined);
+  };
+
+  // Handle location search
+  const handleLocationSearch = async (lat: number, lon: number) => {
+    dispatch(setLoading(true));
+    try {
+      // Set coordinates for the SWR hook to fetch by location
+      setCoordinates({ lat, lon });
+      // Clear the current city when using location
+      dispatch(setCurrentCity(''));
+    } catch (err) {
+      dispatch(
+        setError({
+          message: "Couldn't fetch weather for your location. Please try searching by city name.",
+        })
+      );
+    }
   };
 
   // Set error state from SWR error
@@ -89,7 +113,11 @@ export default function ResponsiveDashboard() {
       </header>
 
       <motion.div variants={itemVariants}>
-        <SearchBar onSearch={handleSearch} isLoading={isLoading} />
+        <SearchBar 
+          onSearch={handleSearch} 
+          onLocationSearch={handleLocationSearch}
+          isLoading={isLoading} 
+        />
         <ErrorDisplay />
       </motion.div>
       

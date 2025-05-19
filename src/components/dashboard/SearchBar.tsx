@@ -5,13 +5,15 @@ import { useAppDispatch } from '@/store';
 import { setCurrentCity, setError } from '@/store/weatherSlice';
 import { motion } from 'framer-motion';
 import { HiOutlineBuildingOffice2, HiOutlineMagnifyingGlass, HiOutlineXMark } from 'react-icons/hi2';
+import CurrentLocationButton from '@/components/weather/CurrentLocationButton';
 
 interface SearchBarProps {
   onSearch: (city: string) => void;
+  onLocationSearch?: (lat: number, lon: number) => void;
   isLoading: boolean;
 }
 
-const SearchBar = ({ onSearch, isLoading }: SearchBarProps) => {
+export default function SearchBar({ onSearch, onLocationSearch, isLoading }: SearchBarProps) {
   const [input, setInput] = useState('');
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -24,10 +26,8 @@ const SearchBar = ({ onSearch, isLoading }: SearchBarProps) => {
     }
   }, []);
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = (e: FormEvent, city: string) => {
     e.preventDefault();
-    
-    const city = input.trim();
     
     if (!city) {
       dispatch(setError({ message: 'Please enter a city name' }));
@@ -46,7 +46,7 @@ const SearchBar = ({ onSearch, isLoading }: SearchBarProps) => {
 
   return (
     <motion.form 
-      onSubmit={handleSubmit}
+      onSubmit={(e) => handleSubmit(e, input)}
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, once: true }}
@@ -118,40 +118,38 @@ const SearchBar = ({ onSearch, isLoading }: SearchBarProps) => {
         </motion.button>
       </div>
       
-      {/* Popular city suggestions */}
-      {!input && !isLoading && (
-        <div className="mt-3 flex flex-wrap justify-center gap-2">
-          <PopularCityButton city="İstanbul" onClick={() => {
-            setInput("İstanbul");
-            onSearch("İstanbul");
-          }} />
-          <PopularCityButton city="Tokyo" onClick={() => {
-            setInput("Tokyo");
-            onSearch("Tokyo");
-          }} />
-          <PopularCityButton city="New York" onClick={() => {
-            setInput("New York");
-            onSearch("New York");
-          }} />
-          <PopularCityButton city="London" onClick={() => {
-            setInput("London");
-            onSearch("London");
-          }} />
-          <PopularCityButton city="Sydney" onClick={() => {
-            setInput("Sydney");
-            onSearch("Sydney");
-          }} />
-          <PopularCityButton city="Paris" onClick={() => {
-            setInput("Paris");
-            onSearch("Paris");
-          }} />
-        </div>
-      )}
+      {/* Popular Cities */}
+      <div className="mt-4 flex flex-wrap gap-2 justify-center">
+        <CurrentLocationButton 
+          onLocationDetected={onLocationSearch || (() => {})}
+          disabled={isLoading}
+        />
+         <PopularCityButton 
+          city="İstanbul" 
+          onClick={(e) => handleSubmit(e, 'İstanbul')} 
+        />
+         <PopularCityButton 
+          city="Vienna" 
+          onClick={(e) => handleSubmit(e, 'Vienna')} 
+        />
+        <PopularCityButton 
+          city="New York" 
+          onClick={(e) => handleSubmit(e, 'New York')} 
+        />
+        <PopularCityButton 
+          city="London" 
+          onClick={(e) => handleSubmit(e, 'London')} 
+        />
+        <PopularCityButton 
+          city="Tokyo" 
+          onClick={(e) => handleSubmit(e, 'Tokyo')} 
+        />
+      </div>
     </motion.form>
   );
-};
+}
 
-const PopularCityButton = ({ city, onClick }: { city: string; onClick: () => void }) => {
+const PopularCityButton = ({ city, onClick }: { city: string; onClick: (e: FormEvent) => void }) => {
   return (
     <motion.button
       type="button"
@@ -164,5 +162,3 @@ const PopularCityButton = ({ city, onClick }: { city: string; onClick: () => voi
     </motion.button>
   );
 };
-
-export default SearchBar;

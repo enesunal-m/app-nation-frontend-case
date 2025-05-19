@@ -15,6 +15,7 @@ A comprehensive weather dashboard built with Next.js, React, TypeScript, and Tai
 ## 🌤️ Features
 
 - **City Search**: Search for weather information by city name
+- **Current Location**: Get weather for your current location using browser geolocation
 - **Current Weather**: Display current weather conditions with detailed information
 - **5-Day Forecast**: View a 5-day weather forecast
 - **Unit Toggle**: Switch between Celsius and Fahrenheit
