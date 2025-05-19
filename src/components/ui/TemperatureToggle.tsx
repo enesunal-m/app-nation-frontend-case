@@ -32,7 +32,7 @@ export default function TemperatureToggle() {
       </span>
       
       {/* Toggle Switch */}
-      <div className="relative mx-1 w-8 h-4 bg-gray-200 dark:bg-gray-700 rounded-full transition-colors">
+      <div className="relative mx-1 w-8 h-4 bg-gray-100 dark:bg-gray-700 rounded-full transition-colors">
         <span 
           className={`absolute top-0.5 left-0.5 w-3 h-3 rounded-full bg-blue-600 dark:bg-blue-400 
             transition-transform duration-300 ${isCelsius ? '' : 'translate-x-4'}`}

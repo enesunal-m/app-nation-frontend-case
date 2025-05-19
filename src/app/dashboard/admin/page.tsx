@@ -68,6 +68,7 @@ export default function AdminPage() {
   return (
     <div>
       <header className="text-center mb-8">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Admin Dashboard</h1>
         <p className="text-gray-600 dark:text-gray-400 mb-4">
           View all user queries and weather data.
         </p>

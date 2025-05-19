@@ -4,6 +4,7 @@ import { useState, FormEvent, useRef, useEffect } from 'react';
 import { useAppDispatch } from '@/store';
 import { setCurrentCity, setError } from '@/store/weatherSlice';
 import { motion } from 'framer-motion';
+import { HiOutlineBuildingOffice2, HiOutlineMagnifyingGlass, HiOutlineXMark } from 'react-icons/hi2';
 
 interface SearchBarProps {
   onSearch: (city: string) => void;
@@ -61,20 +62,7 @@ const SearchBar = ({ onSearch, isLoading }: SearchBarProps) => {
           transition={{ duration: 0.2 }}
         >
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 dark:text-gray-500">
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              className="h-5 w-5" 
-              fill="none" 
-              viewBox="0 0 24 24" 
-              stroke="currentColor"
-            >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={2} 
-                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" 
-              />
-            </svg>
+            <HiOutlineBuildingOffice2 className="h-5 w-5" />
           </div>
           <input
             ref={inputRef}
@@ -98,9 +86,7 @@ const SearchBar = ({ onSearch, isLoading }: SearchBarProps) => {
               className="absolute right-12 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
               aria-label="Clear search"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 001.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              </svg>
+              <HiOutlineXMark className="h-5 w-5" />
             </button>
           )}
         </motion.div>
@@ -125,9 +111,7 @@ const SearchBar = ({ onSearch, isLoading }: SearchBarProps) => {
             </>
           ) : (
             <>
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
-              </svg>
+              <HiOutlineMagnifyingGlass className="h-5 w-5 mr-2" />
               <span>Search</span>
             </>
           )}

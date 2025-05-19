@@ -266,7 +266,7 @@ export default function HistoryPage() {
                                   alt={parsedWeather.weather[0].description}
                                   width={40}
                                   height={40}
-                                  className="mr-2 rounded-full bg-gray-100 dark:bg-gray-700 p-1"
+                                  className="mr-2 rounded-full bg-gray-200 dark:bg-gray-600 p-1"
                                 />
                                 <span className="text-sm text-gray-900 dark:text-gray-100 capitalize truncate max-w-[100px] md:max-w-none">
                                   {parsedWeather.weather[0].description}
@@ -318,7 +318,7 @@ export default function HistoryPage() {
                     <div className="bg-gradient-to-r from-blue-500 to-indigo-600 px-4 py-3">
                       <div className="flex justify-between items-center">
                         <div className="text-white">
-                          <h3 className="font-bold text-lg">{item.city}</h3>
+                          <h3 className="font-bold text-lg capitalize">{item.city}</h3>
                           <p className="text-blue-100 text-xs">{parsedWeather.sys?.country}</p>
                         </div>
                         <span className="text-white text-xs bg-blue-600/50 rounded-full px-2 py-1">
