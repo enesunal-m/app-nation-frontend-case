@@ -2,7 +2,7 @@
 
 A comprehensive weather dashboard built with Next.js, React, TypeScript, and Tailwind CSS. This application allows users to search for real-time weather data for any city, view 5-day forecasts, and toggle between Celsius and Fahrenheit units.
 
-![Weather Dashboard Screenshot](https://app.app-nation-case.live/dashboard-screenshot.png)
+![Weather Dashboard Screenshot](public/images/dashboard-screenshot.png)
 
 ## 🔗 Live Demo
 
